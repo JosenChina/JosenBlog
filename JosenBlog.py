@@ -1,12 +1,9 @@
-from flask import Flask
+# _*_ coding: utf-8 _*_
+# filename: JosenBlog.py
+import os
+from webapp import create_app
 
-app = Flask(__name__)
-
-
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
-
+app = create_app(os.environ.get('FLASKY_CONFIG') or 'default')
 
 if __name__ == '__main__':
     app.run()
