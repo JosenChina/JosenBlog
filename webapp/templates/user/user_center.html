@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block page_content %}
+{{ super() }}
+<div class="page-header">
+    <h1>个人中心</h1>
+</div>
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">我的资料【用户名：{{ current_user.username }}】</h3>
+    </div>
+    <div class="panel-body">
+        <div class="col-lg-4">
+            <div class="row clearfix">
+                <div class="col-md-12 column">
+                    <img class="img-rounded" src="{{ current_user.avatar_hash }}" width="300px"><br><br>
+                    {% if current_user == user %}
+                        <a id="modal-416617" href="#modal-container-416617" role="button" class="btn btn-warning" data-toggle="modal">修改头像</a>
+                    {% endif %}
+                    <div class="modal fade" id="modal-container-416617" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                                    <h4 class="modal-title" id="myModalLabel">
+                                        头像上传
+                                    </h4>
+                                </div>
+                                <form method="post" action="{{ url_for('user.change_avatar') }}" enctype="multipart/form-data">
+                                    <div class="modal-body">
+                                        <input type="file" name="avatar">
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                        <button type="submit" class="btn btn-primary">上传</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8>">
+            <h1>{{ user.username }}</h1>
+            {% if user.name %}<p>{{ user.name }}</p>{% endif %}
+            {% if user.email %}<p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>{% endif %}
+            {% if user.sex %}<p>性别： {{ user.sex }}</p>{% endif %}
+            {% if user.location %}<p>地址： {{ user.location }}</p>{% endif %}
+            {% if user.about_me %}<p>个性签名： {{ user.about_me }}</p>{% endif %}
+            {% if current_user == user %}<p>用户注册时间：{{ moment(user.member_since).fromNow() }}</p>{% endif %}
+            <br>
+            {% if current_user == user %}
+                <a id="modal-956888" href="#modal-container-956888" role="button" class="btn btn-info" data-toggle="modal">修改个人信息</a>
+            {% endif %}
+            <div class="modal fade" id="modal-container-956888" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                            <h4 class="modal-title" id="myModalLabel">
+                                个人信息
+                            </h4>
+                        </div>
+                        <form action="{{ url_for('user.change_info') }}" method="post">
+                            <div class="modal-body">
+                                <div class="input-group">
+                                    <span class="input-group-addon">用户：</span>
+                                    <input type="text" class="form-control" value="{{ user.username }}" disabled="disabled">
+                                </div><br>
+                                <div class="input-group">
+                                    <span class="input-group-addon">邮箱：</span>
+                                    <input type="text" class="form-control" value="{{ user.email }}" disabled="disabled">
+                                </div>
+                                {% if current_user == user %}<p class="text-right"><a href="{{ url_for('user.change_email') }}">更改邮箱</a></p>{% endif %}
+                                <div class="input-group">
+                                    <span class="input-group-addon">密码：</span>
+                                    <input type="text" class="form-control" placeholder="请前往安全中心修改密码" disabled="disabled">
+                                </div>
+                                {% if current_user == user %}<p class="text-right"><a href="{{ url_for('user.security_center') }}">安全中心</a> </p>{% endif %}
+                                <div class="input-group">
+                                    <span class="input-group-addon">姓名：</span>
+                                    <input type="text" class="form-control" value="{{ user.name }}" name="name">
+                                </div><br>
+                                <div class="input-group">
+                                    <span class="input-group-addon">性别：</span>
+                                    <select name="sex" class="form-control">
+                                        <option value="男" {% if user.sex == '男' %}selected="selected"{% endif %}>男</option>
+                                        <option value="女" {% if user.sex == '女' %}selected="selected"{% endif %}>女</option>
+                                    </select>
+                                </div><br>
+                                <div class="input-group">
+                                    <span class="input-group-addon">地址：</span>
+                                    <input type="text" class="form-control" value="{{ user.location }}" name="location">
+                                </div><br>
+                                <div class="input-group">
+                                    <span class="input-group-addon">个性签名：</span>
+                                    <input type="text" class="form-control" value="{{ user.about_me }}" name="about_me">
+                                </div><br>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                                <button type="submit" class="btn btn-primary">保存</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

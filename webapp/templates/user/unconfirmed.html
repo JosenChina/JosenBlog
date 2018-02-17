@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block page_content %}
+{{ super() }}
+<div class="page-header">
+    您的邮箱还未验证，点击<a href="{{ url_for('user.resend_email') }}">这里</a>重新发送验证邮件！
+</div>
+
+
+{% endblock %}

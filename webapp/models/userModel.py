@@ -6,7 +6,8 @@ from flask_login import UserMixin, AnonymousUserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
-from . roleModel import Role
+from . roleModel import Role, Permission
+from .followModel import Follow
 
 
 class AnonymousUser(AnonymousUserMixin):
@@ -25,7 +26,7 @@ login_manager.anonymous_user = AnonymousUser
 # 用户类
 class User(UserMixin, db.Model):
     __tablename__ = 'users'
-    id = db.Column(db.BigInteger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(128), index=True, unique=True)
     password_hash = db.Column(db.String(128))
@@ -38,6 +39,17 @@ class User(UserMixin, db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     confirmed = db.Column(db.Boolean, default=False)
     avatar_hash = db.Column(db.String(128))
+
+    followed = db.relationship('Follow',
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    follower = db.relationship('Follow',
+                               foreign_keys=[Follow.followed_id],
+                               backref=db.backref('followed', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -68,7 +80,7 @@ class User(UserMixin, db.Model):
 
     # 验证密码是否匹配对应的hash值
     def verify_password(self, password):
-        return check_password_hash(self.passwd_hash, password)
+        return check_password_hash(self.password_hash, password)
 
     # 生成密令
     def generate_confirmation_token(self, expiration=3600):
@@ -87,3 +99,19 @@ class User(UserMixin, db.Model):
         self.confirmed = True
         db.session.add(self)
         return True
+
+    # 每次登录刷新一次登录项
+    def ping(self):
+        self.last_seen = datetime.utcnow()
+        db.session.add(self)
+
+    # 查看用户是否有权限
+    def can(self, permission):
+        return self.role is not None and\
+               (self.role.permissions & permission) == permission
+
+    # 验证用户是否管理员
+    def is_administrator(self):
+        return self.can(Permission.ADMINISTER)
+
+
