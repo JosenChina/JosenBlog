@@ -1,5 +1,6 @@
 # _*_ coding: utf-8 _*_
 # filename: form.py
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, RadioField, PasswordField, BooleanField
 from wtforms.validators import DataRequired, Email, Regexp, Length, EqualTo
@@ -41,3 +42,29 @@ class LoginForm(FlaskForm):
         if not User.query.filter_by(username=field.data).first() and not User.query.filter_by(email=field.data).first():
             raise ValidationError('该用户名或邮箱不存在！')
 
+
+class ChangeEmailForm(FlaskForm):
+    password = PasswordField('密码', validators=[DataRequired('请输入当前用户密码！')])
+    email = StringField('新邮箱', validators=[Email('邮箱格式输入有误！')])
+    submit = SubmitField('发送验证邮件')
+
+    def validate_password(self, field):
+        if not current_user.verify_password(field.data):
+            raise ValidationError('密码输入有误！')
+
+    def validate_email(self, field):
+        if User.query.filter_by(email=field.data).first():
+            raise ValidationError('该邮箱已绑定其他账号，请输入未绑定的邮箱！')
+
+
+class ChangePasswordForm(FlaskForm):
+    oldPassword = PasswordField('原密码', validators=[DataRequired('请输入当前账户的旧密码！')])
+    newPassword1 = PasswordField('新密码', validators=[Length(1, 64, message='密码长度请不要超出64位！'),\
+                                                    DataRequired('请输入新密码！'), Regexp('^[A-Za-z0-9_@]*$',\
+                                                    message='请不要输入字母、数字、下划线、“@”以外的字符！')])
+    newPassword2 = PasswordField('确认密码', validators=[EqualTo('newPassword1', message='两次密码输入不一致！')])
+    submit = SubmitField('确认修改')
+
+    def validate_oldPassword(self, field):
+        if not current_user.verify_password(field.data):
+            raise ValidationError('原密码输入不正确！')

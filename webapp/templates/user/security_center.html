@@ -1,6 +1,45 @@
 {% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
 {% block page_content %}
 {{ super() }}
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<ul class="nav nav-tabs">
+				<li {% if request.cookies.get('security_center') == 'change-email' %}class="active"{% endif %}>
+					 <a href="{{ url_for('user.change_email') }}">更改邮箱</a>
+				</li>
+				<li {% if request.cookies.get('security_center') == 'change-password' %}class="active"{% endif %}>
+					 <a href="{{ url_for('user.change_password') }}">更改密码</a>
+				</li>
+			</ul><br><br>
+		</div>
+	</div>
+    {% if request.cookies.get('security_center') == 'change-email' %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">邮箱更改【原邮箱：{{ current_user.email }}】</h3>
+            </div>
+            <div class="panel-body">
+                {{ wtf.quick_form(email_form) }}
+            </div>
+        </div>
 
+
+    {% endif %}
+    {% if request.cookies.get('security_center') == 'change-password' %}
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <h3 class="panel-title">修改密码</h3>
+            </div>
+            <div class="panel-body">
+                {{ wtf.quick_form(password_form) }}
+            </div>
+        </div>
+
+
+    {% endif %}
+
+</div>
 
 {% endblock %}

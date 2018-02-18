@@ -114,4 +114,31 @@ class User(UserMixin, db.Model):
     def is_administrator(self):
         return self.can(Permission.ADMINISTER)
 
+    # 生成更改邮箱密令
+    def change_email_token(self, email, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({
+            'newEmail': email,
+            'id': self.id
+        })
 
+    # 验证更改邮箱密令
+    def change_email_confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('id') != self.id:
+            return False
+        self.email = data.get('email')
+        db.session.add(self)
+        return True
+
+    # 修改密码
+    def change_password(self, old_password, new_password):
+        if not self.verify_password(old_password):
+            return False
+        self.password = new_password
+        db.session.add(self)
+        return True

@@ -4,6 +4,7 @@
 {{ super() }}
 <div class="page-header">
     <h1>个人中心</h1>
+    <p class="text-right"><a href="{{ url_for('user.security_center') }}">安全中心</a> </p>
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">
@@ -13,7 +14,7 @@
         <div class="col-lg-4">
             <div class="row clearfix">
                 <div class="col-md-12 column">
-                    <img class="img-rounded" src="{{ current_user.avatar_hash }}" width="300px"><br><br>
+                    <img class="img-rounded" src="{{ user.avatar_hash }}" width="300px"><br><br>
                     {% if current_user == user %}
                         <a id="modal-416617" href="#modal-container-416617" role="button" class="btn btn-warning" data-toggle="modal">修改头像</a>
                     {% endif %}
@@ -42,7 +43,12 @@
             </div>
         </div>
         <div class="col-lg-8>">
-            <h1>{{ user.username }}</h1>
+            <h1>{{ user.username }}
+                {% if current_user == user %}
+                    <a id="modal-956888" href="#modal-container-956888" role="button" class="btn btn-info" data-toggle="modal">修改个人信息</a>
+                {% endif %}
+            </h1>
+
             {% if user.name %}<p>{{ user.name }}</p>{% endif %}
             {% if user.email %}<p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>{% endif %}
             {% if user.sex %}<p>性别： {{ user.sex }}</p>{% endif %}
@@ -50,9 +56,6 @@
             {% if user.about_me %}<p>个性签名： {{ user.about_me }}</p>{% endif %}
             {% if current_user == user %}<p>用户注册时间：{{ moment(user.member_since).fromNow() }}</p>{% endif %}
             <br>
-            {% if current_user == user %}
-                <a id="modal-956888" href="#modal-container-956888" role="button" class="btn btn-info" data-toggle="modal">修改个人信息</a>
-            {% endif %}
             <div class="modal fade" id="modal-container-956888" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -93,9 +96,9 @@
                                     <span class="input-group-addon">地址：</span>
                                     <input type="text" class="form-control" value="{{ user.location }}" name="location">
                                 </div><br>
-                                <div class="input-group">
-                                    <span class="input-group-addon">个性签名：</span>
-                                    <input type="text" class="form-control" value="{{ user.about_me }}" name="about_me">
+                                <div>
+                                    <span>个性签名：</span>
+                                    <textarea  rows="3" name="about_me" class="form-control">{{ user.about_me }}</textarea>
                                 </div><br>
                             </div>
                             <div class="modal-footer">
