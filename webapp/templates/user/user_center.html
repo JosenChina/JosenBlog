@@ -3,12 +3,16 @@
 {% block page_content %}
 {{ super() }}
 <div class="page-header">
-    <h1>个人中心</h1>
-    <p class="text-right"><a href="{{ url_for('user.security_center') }}">安全中心</a> </p>
+    {% if current_user == user %}
+        <h1>个人中心</h1>
+        <p class="text-right"><a href="{{ url_for('user.security_center') }}">安全中心</a> </p>
+    {% else %}
+        <h1>用户中心</h1>
+    {% endif %}
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">我的资料【用户名：{{ current_user.username }}】</h3>
+        <h3 class="panel-title">{% if current_user == user %}我的资料{% endif %}【用户名：{{ current_user.username }}】</h3>
     </div>
     <div class="panel-body">
         <div class="col-lg-4">
@@ -46,9 +50,19 @@
             <h1>{{ user.username }}
                 {% if current_user == user %}
                     <a id="modal-956888" href="#modal-container-956888" role="button" class="btn btn-info" data-toggle="modal">修改个人信息</a>
+                {% elif current_user.is_following(user) %}
+                    <a href="{{ url_for('main.unfollow', id=user.id) }}" class="btn btn-success" title="取消关注">
+                        <span class="glyphicon glyphicon-ok"></span>已关注</a>
+                {% else %}
+                    <a href="{{ url_for('main.follow', id=user.id) }}" class="btn btn-default" title="点击关注">
+                        <span class="glyphicon glyphicon-plus"></span>关注</a>
                 {% endif %}
             </h1>
-
+            <h5>
+                {% if current_user.is_followed_by(user) %}<span class="label label-danger">关注了你</span>{% endif %}
+                <span class="label label-primary">关注：{{ user.followed.count() }}</span>
+                <span class="label label-success">被关注：{{ user.followers.count() }}</span>
+            </h5>
             {% if user.name %}<p>{{ user.name }}</p>{% endif %}
             {% if user.email %}<p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>{% endif %}
             {% if user.sex %}<p>性别： {{ user.sex }}</p>{% endif %}

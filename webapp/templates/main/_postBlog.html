@@ -1,0 +1,48 @@
+<script type="text/javascript" charset="utf-8" src="{{ url_for('static', filename='ueditor/ueditor.config.js') }}"></script>
+<script type="text/javascript" charset="utf-8" src="{{ url_for('static', filename='ueditor/ueditor.all.min.js') }} "> </script>
+<script type="text/javascript" charset="utf-8" src="{{ url_for('static', filename='ueditor/lang/zh-cn/zh-cn.js') }}"></script>
+
+<div id="editor" style="height:400px"></div>
+<script type="text/javascript">
+    var ue = UE.getEditor('editor', {
+        serverUrl: "{{ url_for('ueditor.handle') }}"
+    });
+    //器的操作最好在编辑器ready之后再做
+ue.ready(function() {
+    // 编辑器开始变获得焦点
+
+    ue.setContent('{{ first_content | safe}}');
+    ue.focus();
+
+});
+function post_click() {
+    var ue1 = UE.getEditor('editor');
+    document.getElementById('post-content').value = ue1.getContent();
+}
+</script>
+<br>
+<a id="modal-452991" href="#modal-container-452991" role="button" class="btn btn-success btn-sm" data-toggle="modal">发表</a>
+<a class="btn btn-default btn-sm" href="{{ url_for('main.index') }}">取消</a>
+<div class="modal fade" id="modal-container-452991" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title" id="myModalLabel">
+                    博客发表
+                </h4>
+            </div>
+            <form method="post" action="{{ action }}" id="blog-form">
+                <div class="modal-body">
+                    <input type="hidden" id="post-content" name="blog_content">
+                    <span class="text">博客标题：</span><br><br>
+                    <input type="text" class="form-control" maxlength="250" name="title" placeholder="长度不要超过250位！" value="{{ title or '' }}" required="required">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="submit" class="btn btn-success btn-sm" id="submit" onclick="post_click()">提交</button>&nbsp;&nbsp;
+                </div>
+            </form><br><br>
+        </div>
+    </div>
+</div>

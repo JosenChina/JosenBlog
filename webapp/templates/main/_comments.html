@@ -1,0 +1,39 @@
+<ul class="comments">
+    {% for comment in comments %}
+        <li class="comment">
+            <div class="comment-thumbnail">
+                <a href="{{ url_for('user.user_center', id=comment.author_id) }}">
+                    <img width="40" class="img-rounded profile-thumbnail" src="{{ comment.author.avatar_hash }}">
+                </a>
+            </div>
+            <div class="comment-content">
+                <div class="comment-date">{{ moment(comment.timestamp).fromNow() }}</div>
+                <div class="comment-author">{{ comment.author.username }}</div>
+                <div class="comment-body">
+                    {% if comment.disabled %}
+                        <p><i>该评论涉及违规，已被屏蔽！</i></p>
+                    {% endif %}
+                    {% if moderate or not comment.disabled %}
+                        {{ comment.body }}
+                    {% endif %}
+                </div>
+                {% if moderate and blog %}
+                    <br>
+                    {% if comment.disabled %}
+                        <a class="btn btn-success btn-xs" href="{{ url_for('main.comment_enable', bid=comment.blog_id, id=comment.id, page=page) }}">启用</a>
+                    {% else %}
+                        <a class="btn btn-warning btn-xs" href="{{ url_for('main.comment_disable', bid=comment.blog_id, id=comment.id, page=page) }}">屏蔽</a>
+                    {% endif %}
+                {% endif %}
+                {% if current_user == comment.author %}
+                    <p class="text text-right">
+                        {% if not blog %}
+                            <a class="btn btn-primary btn-xs" href="{{ url_for('main.look_blog', id=comment.blog_id) }}">查看博客</a>
+                        {% endif %}
+                        <a class="btn btn-danger btn-xs" href="{{ url_for('main.delete_comment', id=comment.id) }}">删除评论</a>
+                    </p>
+                {% endif %}
+            </div>
+        </li>
+    {% endfor %}
+</ul>

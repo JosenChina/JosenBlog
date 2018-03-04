@@ -3,5 +3,5 @@
 <div class="page-header">
     <h1>修改邮箱验证【用户名：{{ user.username }}】</h1>
 </div>
-<p>您正在更改邮箱，点击<a href="{{ url_for('user.change_email_confirm', token=token) }}"> 这里 </a>完成操作！ </p>
+<p>您正在更改邮箱，点击<a href="{{ url_for('user.change_email_confirm', token=token, _external=True) }}"> 这里 </a>完成操作！ </p>
 {% endblock %}

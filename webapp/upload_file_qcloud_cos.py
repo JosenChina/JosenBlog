@@ -25,6 +25,8 @@ client = CosS3Client(config)
 
 
 class cos_class:
+    cos_path = os.environ.get('cos_path') or 'http://%s-%s.cosgz.myqcloud.com' % (os.environ.get('cos_bucket'), os.environ.get('cos_app_id'))
+
     @staticmethod
     def upload_file(file_body, file_name):
         # 文件流 简单上传

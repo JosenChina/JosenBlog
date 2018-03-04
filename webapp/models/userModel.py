@@ -8,6 +8,7 @@ from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
 from . roleModel import Role, Permission
 from .followModel import Follow
+import os
 
 
 class AnonymousUser(AnonymousUserMixin):
@@ -40,16 +41,20 @@ class User(UserMixin, db.Model):
     confirmed = db.Column(db.Boolean, default=False)
     avatar_hash = db.Column(db.String(128))
 
+    blogs = db.relationship('Blog', backref='author', lazy='dynamic')
+    comments = db.relationship('Comment', backref='author', lazy='dynamic')
+    categorys = db.relationship('Category', backref='author', lazy='dynamic')
+
     followed = db.relationship('Follow',
                                foreign_keys=[Follow.follower_id],
                                backref=db.backref('follower', lazy='joined'),
                                lazy='dynamic',
                                cascade='all, delete-orphan')
-    follower = db.relationship('Follow',
-                               foreign_keys=[Follow.followed_id],
-                               backref=db.backref('followed', lazy='joined'),
-                               lazy='dynamic',
-                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
 
     def __repr__(self):
         return '<User %r>' % self.username
@@ -131,7 +136,7 @@ class User(UserMixin, db.Model):
             return False
         if data.get('id') != self.id:
             return False
-        self.email = data.get('email')
+        self.email = data.get('newEmail')
         db.session.add(self)
         return True
 
@@ -142,3 +147,32 @@ class User(UserMixin, db.Model):
         self.password = new_password
         db.session.add(self)
         return True
+
+    # 是否关注了某用户
+    def is_following(self, user):
+        return self.followed.filter_by(followed_id=user.id).first() is not None
+
+    # 是否被关注
+    def is_followed_by(self, user):
+        return self.followers.filter_by(follower_id=user.id).first() is not None
+
+    # 关注用户
+    def following(self, user):
+        if not self.is_following(user):
+            db.session.add(Follow(followed_id=user.id, follower_id=self.id))
+        return True
+
+    # 取消关注
+    def cancel_follow(self, user):
+        if self.is_following(user):
+            db.session.delete(Follow.query.filter_by(followed_id=user.id).first())
+        return True
+
+    # 为所有用户添加默认权限
+    @staticmethod
+    def add_default_permission():
+        for u in User.query.all():
+            if u.email != os.environ.get('FLASKY_ADMIN'):
+                u.role = Role.query.filter_by(default=True).first()
+                db.session.add(u)
+        db.session.commit()

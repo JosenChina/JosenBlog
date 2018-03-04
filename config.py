@@ -26,8 +26,9 @@ class DevelopmentConfig(Config):
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
-    FLASKY_POSTS_PER_PAGE = 10
-    FLASKY_COMMENTS_PER_PAGE = 20
+    FLASKY_BLOGS_PER_PAGE = 20
+    FLASKY_COMMENTS_PER_PAGE = 10
+    FLASKY_FOLLOWED_PER_PAGE = 15
 
 
 class TestingConfig(Config):

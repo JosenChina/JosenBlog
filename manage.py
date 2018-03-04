@@ -4,6 +4,7 @@ import os
 from webapp import db, create_app
 from flask_script import Manager, Shell
 from flask_migrate import Migrate, MigrateCommand
+from webapp.models import *
 
 app = create_app(os.environ.get('FLASKY_CONFIG') or 'default')
 manager = Manager(app)

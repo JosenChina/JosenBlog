@@ -3,4 +3,5 @@
 from flask import Blueprint
 _admin = Blueprint('admin', __name__)
 
+
 from . import view

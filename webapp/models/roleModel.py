@@ -29,7 +29,7 @@ class Role(db.Model):
             'Moderator': [Permission.FOLLOW, Permission.COMMIT, Permission.WRITE_ARTICLES, Permission.MODERATE_COMMENTS],
             'Administrator': [Permission.FOLLOW, Permission.COMMIT, Permission.WRITE_ARTICLES, Permission.MODERATE_COMMENTS, Permission.ADMINISTER]
         }
-        default_role = 'User'
+        default_role = 'Moderator'
         for r in roles:
             role = Role.query.filter_by(name=r).first()
             if role is None:

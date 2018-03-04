@@ -1,0 +1,43 @@
+<div class="col-md-3 column">
+    <div class="list-group">
+        <a href="#" class="list-group-item active">我关注的</a>
+        {% for fl in followed_pagination.items %}
+            <div class="list-group-item">
+                <p><strong>{{ fl.followed.name }}</strong> <i><small> {{ fl.followed.username }} </small></i>
+                    <br>他的博客<span class="badge"> {{ fl.followed.blogs.count() }} </span>
+                </p>
+            </div>
+        {% endfor %}
+        <div class="list-group-item">
+            <ul class="pagination">
+                <li{% if not followed_pagination.has_prev %} class="disabled" {% endif %}>
+                    <a href="{% if followed_pagination.has_prev %}{{ url_for('main.index',
+                        _page=followed_pagination.page - 1) }}{% else %}#{% endif %}">
+                &laquo;
+                    </a>
+                </li>
+                {% for p in followed_pagination.iter_pages() %}
+                    {% if p %}
+                        {% if p==followed_pagination.page %}
+                            <li class="active">
+                                <a href="{{ url_for('main.index', _page=p) }}">{{ p }}</a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <a href="{{ url_for('main.index', _page=p) }}">{{ p }}</a>
+                            </li>
+                        {% endif %}
+                    {% else %}
+                    <li class="disabled"><a href="#">&hellip;</a> </li>
+                    {% endif %}
+                {% endfor %}
+                <li{% if not followed_pagination.has_next %} class="disabled"{% endif %}>
+                    <a href="{% if followed_pagination.has_next %}{{ url_for('main.index',
+                            _page=followed_pagination.page + 1) }}{% else %}#{% endif %}">
+                        &raquo;
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
