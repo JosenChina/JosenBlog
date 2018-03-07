@@ -7,7 +7,7 @@
 		    <div class="col-md-12 column">
 			    <div class="jumbotron">
 				    <h1>
-					    {{ blog.title }}
+					    {{ (blog.title or '[无标题]').rsplit('+-+',1)[0] }}
 				    </h1>
                     <h5>
                         <span class="label label-success">浏览量：{{ blog.looks }}</span>&nbsp;&nbsp;
@@ -40,10 +40,9 @@
                 </div>
             </div>
         {% endif %}
-        <p class="text text-right" id="comments"><a href="{{ url_for('main.moderate') }}">我的所有评论</a> </p>
         {% include 'main/_comments.html' %}
         <div class="pagination">
-            {{ macros.pagination_widget(pagination, 'main.look_blog', blog.id) }}
+        {{ macros.pagination_widget(comments_pagination, comments_pagination_view, bid=blog.id) }}
         </div>
     </div>
 

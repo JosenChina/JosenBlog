@@ -12,19 +12,43 @@ from ..models.commentModel import Comment
 from ..models.followModel import Follow
 from datetime import datetime
 from random import randint
+import os
 
 
 @_main.route('/')
 def index():
+    # 我关注的列表
     followed_pagination = None
+    # 我最近发表过的三篇博客
+    fbn = 0
+    FB3 = None
+    # 最热的20篇文章
+    hottest_blogs = Blog.query.order_by(Blog.looks.desc()).limit(current_app.config['FLASKY_HOTTEST_BLOGS'])
+    # 最近发表40篇博客
+    last_blogs = Blog.query.order_by(Blog.timestamp.desc()).limit(current_app.config['FLASKY_LAST_BLOGS'])
+    # 我的评论管理
+    cn = None
+    comments_pagination = None
+    with open('%s/../admin/bulletin.txt' % os.path.dirname(__file__), 'r') as f:
+        bulletin = f.read()
     if current_user.is_authenticated:
         followed_page = request.args.get('_page', 1, type=int)
         followed_pagination = current_user.followed.paginate(
             followed_page, per_page=current_app.config['FLASKY_FOLLOWED_PER_PAGE'],
             error_out=False
         )
+        # 最近发表的三篇文章
+        FB3 = Blog.query.filter(Blog.author_id == current_user.id).order_by(Blog.timestamp.desc()).limit(3)
+        fbn=FB3.count()
+        comments_page = request.args.get('comments_page', 1, type=int)
+        Comments = Comment.query.filter(Comment.author_id == current_user.id)
+        cn = Comments.count()
+        comments_pagination = Comments.order_by(Comment.timestamp.desc()).paginate(comments_page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'], error_out=False)
 
-    return render_template('main/index.html', followed_pagination=followed_pagination)
+    return render_template('main/index.html', fbn=fbn, FB3=FB3, comments_pagination=comments_pagination, cn=cn,
+                           hottest_blogs=hottest_blogs, comments_pagination_view='main.index',
+                           last_blogs=last_blogs, bulletin=bulletin,
+                           followed_pagination=followed_pagination, randint=randint)
 
 
 @_main.route('/following/<int:id>')
@@ -45,7 +69,7 @@ def unfollow(id):
     return redirect(url_for('user.user_center', id=user.id))
 
 
-@_main.route('/post-blog', methods=['GET', 'POST'])
+@_main.route('/edit-blog', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.WRITE_ARTICLES)
 def edit_blog():
@@ -67,32 +91,47 @@ def edit_blog():
         session['blog_id'] = None
         session['blog_avatar'] = None
         return redirect(url_for('main.index'))
-    return render_template('main/postBlog.html',
+    return render_template('main/postBlog.html', bid=blog.id,
                            first_content=blog.body_html, action=url_for('main.edit_blog'), title=blog.title)
+
+
+@_main.route('cancel-blog/<bid>')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def cancel_blog(bid):
+    blog = Blog.query.get_or_404(bid)
+    if not blog.title:
+        for comment in blog.comments:
+            db.session.delete(comment)
+        db.session.delete(blog)
+        db.session.commit()
+    session['blog_id'] = None
+    return redirect(url_for('main.index'))
 
 
 @_main.route('/look-blog/<int:id>', methods=['GET', 'POST'])
 def look_blog(id):
     blog = Blog.query.get_or_404(id)
     blog.ping()
-    moderate = blog.author_id == current_user.id or current_user.is_administrator()
+    moderate = current_user.is_authenticated and (blog.author_id == current_user.id or current_user.is_administrator())
     page = request.args.get('page', 1, type=int)
-    pagination = blog.comments.order_by(Comment.timestamp.desc())\
+    comments_pagination = blog.comments.order_by(Comment.timestamp.desc())\
         .paginate(page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'], error_out=False)
-    comments = pagination.items
-    return render_template('main/lookBlog.html', pagination=pagination,
-                           blog=blog, comments=comments, moderate=moderate)
+    return render_template('main/lookBlog.html', comments_pagination=comments_pagination,
+                           blog=blog, moderate=moderate, comments_pagination_view='main.look_blog')
 
 
 @_main.route('/change-blog/<int:id>')
 @login_required
 @permission_required(Permission.WRITE_ARTICLES)
 def change_blog(id):
-    if Blog.query.get_or_404(id):
-        session['blog_id'] = id
-        return redirect(url_for('main.edit_blog'))
-    flash('暂时无法修改！')
-    return redirect(url_for('main.look_blog', id=id))
+    blog = Blog.query.get_or_404(id)
+    if not blog:
+        abort(404)
+    if not current_user.is_administrator() and blog.author_id != current_user.id:
+        abort(403)
+    session['blog_id'] = id
+    return redirect(url_for('main.edit_blog'))
 
 
 @_main.route('/comment-blog/<int:id>', methods=['GET', 'POST'])
@@ -135,16 +174,16 @@ def comment_disable(bid, id):
     flash('已禁用！')
     return redirect(url_for('main.look_blog', id=bid, page=page))
 
-
-@_main.route('/comment-moderate')
-@login_required
-@permission_required(Permission.MODERATE_COMMENTS)
-def moderate():
-    page = request.args.get('page', 1, type=int)
-    Comments = Comment.query.filter(Comment.author_id == current_user.id).order_by(Comment.timestamp.desc())
-    pagination = Comments.paginate(page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'], error_out=False)
-    return render_template('main/myComments.html', moderate=True, cn=Comments.count(),
-                           comments=pagination.items, pagination=pagination)
+#
+# @_main.route('/comment-moderate')
+# @login_required
+# @permission_required(Permission.MODERATE_COMMENTS)
+# def moderate():
+#     page = request.args.get('comments_page', 1, type=int)
+#     Comments = Comment.query.filter(Comment.author_id == current_user.id).order_by(Comment.timestamp.desc())
+#     pagination = Comments.paginate(page, per_page=current_app.config['FLASKY_COMMENTS_PER_PAGE'], error_out=False)
+#     return render_template('main/myComments.html', moderate=True, cn=Comments.count(),
+#                            comments=pagination.items, pagination=pagination)
 
 
 @_main.route('/delete-comment/<id>')
@@ -156,3 +195,16 @@ def delete_comment(id):
         db.session.delete(comment)
         flash('已删除！')
     return '<script>self.location=document.referrer</script>'
+
+
+@_main.route('/blogs-manage')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def blogs_manage():
+    page = request.args.get('blogs_page', 1, type=int)
+    Blogs = Blog.query.filter(Blog.author_id == current_user.id)
+    blogs = Blogs.paginate(page, per_page=current_app.config['FLASKY_BLOGS_MANAGE_PER_PAGE'], error_out=False)
+    bn = Blogs.count()
+    return render_template('main/blogsManage.html',
+                           randint=randint, bn=bn, blogs=blogs, endpoint='main.blogs_manage')
+

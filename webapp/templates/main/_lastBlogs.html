@@ -1,0 +1,12 @@
+<div class="list-group">
+
+    <a href="#" class="list-group-item active" id="last-blog">最近更新</a>
+        {% for lb in last_blogs %}
+            <a href="{{ url_for('main.look_blog', id=lb.id) }}" class="list-group-item">
+                <p><strong>{{ (lb.title or '[空]').rsplit('+-+', 1)[0] }}</strong> <i><small> {{ lb.author.name }} </small></i></p>
+            </a>
+        {% endfor %}
+    <a class="list-group-item active" href="#last-blog">
+        回顶部
+    </a>
+</div>

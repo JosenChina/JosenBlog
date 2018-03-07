@@ -22,7 +22,9 @@ function post_click() {
 </script>
 <br>
 <a id="modal-452991" href="#modal-container-452991" role="button" class="btn btn-success btn-sm" data-toggle="modal">发表</a>
-<a class="btn btn-default btn-sm" href="{{ url_for('main.index') }}">取消</a>
+<a class="btn btn-default btn-sm" href="{{ url_for('main.cancel_blog', bid=bid) }}">取消</a>
+
+<br><br>
 <div class="modal fade" id="modal-container-452991" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -36,7 +38,7 @@ function post_click() {
                 <div class="modal-body">
                     <input type="hidden" id="post-content" name="blog_content">
                     <span class="text">博客标题：</span><br><br>
-                    <input type="text" class="form-control" maxlength="250" name="title" placeholder="长度不要超过250位！" value="{{ title or '' }}" required="required">
+                    <input type="text" class="form-control" maxlength="250" name="title" placeholder="长度不要超过250位！" value="{{ (title or '').rsplit('+-+', 1)[0] }}" required="required">
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>

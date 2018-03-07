@@ -1,0 +1,49 @@
+<ul class="posts">
+    {% for b in blogs.items %}
+        <li class="post">
+                <div class="post-thumbnail">
+                    <a href="{{ url_for('main.look_blog', id=b.id) }}">
+                        <img class="img-rounded profile-thumbnail" width="100px"
+                             src="{{ (b.title or '+-+%s' % url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8))).rsplit('+-+', 1)[1] }}">
+                    </a>
+                </div>
+                <div class="post-content">
+                    <div class="post-date">{{ moment(b.timestamp).fromNow() }}</div>
+                    <div class="post-author">
+                        <a href="{{ url_for('user.user_center', id=b.author_id) }}">
+                            &nbsp;&nbsp;{{ b.author.name }}
+                        </a>
+                    </div>
+                    <div class="post-body">
+                        {% if b.title %}
+                            {{ (b.title or '无标题').rsplit('+-+', 1)[0] }}
+                        {% else %}
+                            无标题
+                        {% endif %}
+                    </div>
+
+                    <div class="post-footer">
+                        <a href="{{ url_for('main.look_blog', id=b.id) }}"  class="label label-primary">
+                            <span>点击查看</span>
+                        </a>&nbsp;
+                        <a class="label label-warning"><span>{{ b.comments.count() }}评论</span> </a>&nbsp;
+                        {% if current_user == b.author %}
+                        <a class="label label-primary" href="{{ url_for('main.edit_blog', id=b.id) }}">
+                            <span>更改博客</span>
+                        </a>&nbsp;
+                        {% elif current_user.is_administrator() %}
+                        <a class="label label-danger" href="{{ url_for('main.edit_blog', id=b.id) }}">
+                            <span>更改博客[管理员]</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+        </li>
+
+    {% endfor %}
+
+</ul>
+{% import '_macros.html' as macros %}
+<div class="blogs-pagination">
+    {{ macros.pagination_widget(blogs, endpoint) }}
+</div>

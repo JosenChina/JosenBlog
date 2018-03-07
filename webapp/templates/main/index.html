@@ -9,59 +9,69 @@
 
 <div class="container">
 	<div class="row clearfix">
-        {% if followed_pagination %}
-		    {% include 'main/_followed.html' %}
-        {% else %}
-            <div class="col-md-3 column">
-
-            </div>
-        {% endif %}
+        <div class="col-md-3 column">
+            {% if followed_pagination %}
+		        {% include 'main/_followed.html' %}
+            {% else %}
+                <div class="last-blogs">
+                    {% include 'main/_lastBlogs.html' %}
+                </div>
+            {% endif %}
+        </div>
 		<div class="col-md-6 column">
-			<div class="carousel slide" id="carousel-94468">
-				<ol class="carousel-indicators">
-					<li class="active" data-slide-to="0" data-target="#carousel-94468">
-					</li>
-					<li data-slide-to="1" data-target="#carousel-94468">
-					</li>
-					<li data-slide-to="2" data-target="#carousel-94468">
-					</li>
-				</ol>
-				<div class="carousel-inner">
-					<div class="item active">
-						<img alt="" src="v3/default.jpg" />
-						<div class="carousel-caption">
-							<h4>
-								First Thumbnail label
-							</h4>
-							<p>
-								Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.
-							</p>
-						</div>
-					</div>
-					<div class="item">
-						<img alt="" src="v3/default1.jpg" />
-						<div class="carousel-caption">
-							<h4>
-								Second Thumbnail label
-							</h4>
-							<p>
-								Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.
-							</p>
-						</div>
-					</div>
-					<div class="item">
-						<img alt="" src="v3/default2.jpg" />
-						<div class="carousel-caption">
-							<h4>
-								Third Thumbnail label
-							</h4>
-							<p>
-								Cras justo odio, dapibus ac facilisis in, egestas eget quam. Donec id elit non mi porta gravida at eget metus. Nullam id dolor id nibh ultricies vehicula ut id elit.
-							</p>
-						</div>
-					</div>
-				</div> <a class="left carousel-control" href="#carousel-94468" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a> <a class="right carousel-control" href="#carousel-94468" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
-			</div>
+            {% if FB3 %}
+                {% include 'main/_first_3_blog.html' %}
+
+            {% else %}
+                <div class="carousel slide" id="carousel-94468">
+                    <ol class="carousel-indicators">
+					    <li class="active" data-slide-to="0" data-target="#carousel-94468">
+					    </li>
+    					<li data-slide-to="1" data-target="#carousel-94468">
+	    				</li>
+		    			<li data-slide-to="2" data-target="#carousel-94468">
+			    		</li>
+				    </ol>
+    				<div class="carousel-inner">
+	    				<div class="item active">
+		    				<img style="height: 400px" alt="" src="{{ url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8)) }}" />
+			    			<div class="carousel-caption">
+				    			<h4>
+					    			您还未发表任何博客<small><i>  <a href="{{ url_for('main.edit_blog') }}">去写博客</a></i></small>
+						    	</h4>
+    						</div>
+	    				</div>
+		    			<div class="item">
+			    			<img style="height: 400px" alt="" src="{{ url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8)) }}" />
+				    		<div class="carousel-caption">
+					    		<h4>
+						    		您还未发表任何博客<small><i>  <a href="{{ url_for('main.edit_blog') }}">去写博客</a></i></small>
+							    </h4>
+					    	</div>
+    					</div>
+	    				<div class="item">
+		    				<img style="height: 400px" alt="" src="{{ url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8)) }}" />
+			    			<div class="carousel-caption">
+				    			<h4>
+					    			您还未发表任何博客<small><i>  <a href="{{ url_for('main.edit_blog') }}">去写博客</a></i></small>
+						    	</h4>
+    						</div>
+	    				</div>
+		    		</div>
+                    <a class="left carousel-control" href="#carousel-94468" data-slide="prev"><span class="glyphicon glyphicon-chevron-left"></span></a>
+                    <a class="right carousel-control" href="#carousel-94468" data-slide="next"><span class="glyphicon glyphicon-chevron-right"></span></a>
+    			</div>
+            {% endif %}
+
+            {% if current_user.is_authenticated %}
+                <div>
+                    <h3>我的评论<small><i>共<span class="badge">{{ cn }}</span>条</i></small></h3>
+                    {% include 'main/_comments.html' %}
+                    <div class="pagination">
+                        {{ macros.pagination_widget(comments_pagination, comments_pagination_view) }}
+                    </div>
+                </div>
+            {% endif %}
 		</div>
 		<div class="col-md-3 column">
             <div class="panel panel-warning">
@@ -70,39 +80,24 @@
                 </div>
                 <div class="panel-body">
     			    <p>
-                        <em>Git</em> 是一个分布式的版本控制系统，最初由 <strong>Linus Torvalds</strong> 编写，用作Linux内核代码的管理。在推出后，Git在其它项目中也取得了很大成功，尤其是在 <small>Ruby</small> 社区中。
+                        {{ bulletin | safe}}
         			</p>
                 </div>
             </div>
 
-            <div class="last-comment">
-                    <ol>
-		        		<li>
-	    		    		Lorem ipsum dolor sit amet
-    				    </li>
-    				    <li>
-	    				    Consectetur adipiscing elit
-		    		    </li>
-			        	<li>
-		    	    		Integer molestie lorem at massa
-	    			    </li>
-        				<li>
-	    				    Facilisis in pretium nisl aliquet
-		    		    </li>
-			        	<li>
-		    	    		Nulla volutpat aliquam velit
-	    			    </li>
-        				<li>
-	    				    Faucibus porta lacus fringilla vel
-		    		    </li>
-			        	<li>
-		    	    		Aenean sit amet erat nunc
-	    			    </li>
-        				<li>
-	    				    Eget porttitor lorem
-		    		    </li>
-			        </ol>
-                </div>
+            <div class="hottest-blogs">
+                <h3>热门博客</h3>
+                <ol>
+                    {% for h in hottest_blogs %}
+                        <li>
+                            <a href="{{ url_for('main.look_blog', id=h['id']) }}">
+                                <strong>{{ (h.title or '[无标题]').rsplit('+-+', 1)[0] }}</strong>
+                                <i><small> {{ h.author.name }} </small></i>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
 		</div>
 	</div>
 </div>

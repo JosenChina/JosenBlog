@@ -6,9 +6,11 @@ from . import _user
 from webapp import db
 from webapp.models.userModel import User
 from webapp.models.roleModel import Role
+from webapp.models.blogModel import Blog
 from flask_login import login_user, logout_user, current_user, login_required
 from webapp.mail import send_email
 from ._function import ChangeAvatar
+from random import randint
 
 
 @_user.route('/register', methods=['GET', 'POST'])
@@ -81,7 +83,12 @@ def login():
 @login_required
 def user_center(id):
     user = User.query.get_or_404(id)
-    return render_template('user/user_center.html', user=user)
+    page = request.args.get('blogs_page', 1, type=int)
+    Blogs = Blog.query.filter(Blog.author_id == id)
+    blogs = Blogs.paginate(page, per_page=current_app.config['FLASKY_USER_CENTER_BLOGS_PER_PAGE'], error_out=False)
+    bn = Blogs.count()
+    return render_template('user/user_center.html', randint=randint,
+                           user=user, bn=bn, blogs=blogs, endpoint='user.user_center')
 
 
 @_user.route('/logout')

@@ -34,8 +34,8 @@ class cos_class:
             Bucket=os.environ.get('cos_bucket')+'-'+os.environ.get('cos_app_id'),  # Bucket由bucketname-appid组成
             Body=file_body,
             Key=file_name,
-            StorageClass='STANDARD',
-            CacheControl='no-cache',
+            # StorageClass='STANDARD',
+            # CacheControl='no-cache',
             # ContentDisposition='download.txt'
             )
         print response['ETag']
@@ -47,8 +47,8 @@ class cos_class:
             Bucket=os.environ.get('cos_bucket')+'-'+os.environ.get('cos_app_id'),
             Body=_bytes,
             Key=file_name,
-            CacheControl='no-cache',
-            ContentDisposition='download.txt'
+            # CacheControl='no-cache',
+            # ContentDisposition='download.txt'
         )
         print response['ETag']
 

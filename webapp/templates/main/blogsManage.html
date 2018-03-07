@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block page_content %}
+    {{ super() }}
+    <div class="page-header">
+        <h1>我的所有博客管理</h1>
+    </div>
+    {% include 'main/_blogs.html' %}
+{% endblock %}
