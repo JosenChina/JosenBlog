@@ -1,0 +1,80 @@
+{% extends "bootstrap/base.html" %}                                                                                                                  
+
+{% block title %}欢迎来到Josen的个人博客{% endblock %}
+
+{% block head %}
+{{ super() }}
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+    {{ moment.include_jquery() }}
+    {{ moment.include_moment() }}
+    {{ moment.lang('zh-CN') }}
+
+{% endblock %}
+
+{% block navbar %}
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/main/"><strong>Josen博客网</strong></a>
+        </div>
+        <div class="navbar-collapse collapse">
+            <ul class="nav navbar-nav">
+                <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                        博客
+                        <b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a href="{{ url_for('main.blogs_manage') }}">博客管理</a> </li>
+                        <li class="divider"></li>
+                        <li><a href="{{ url_for('main.edit_blog') }}">写博客</a> </li>
+                    </ul>
+                </li>
+                {% if current_user.can(Permission.ADMINISTER) %}
+                    <li><a href="{{ url_for('admin.edit_bulletin') }}" >公告栏管理</a></li>
+                    <li><a href="{{ url_for('admin.users_manage') }}">用户管理</a> </li>
+                {% endif %}
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('user.user_center', id=current_user.id) }}"><span class="glyphicon glyphicon-user">个人中心</span></a></li>
+                    <li><a href="/user/logout"><span class="glyphicon glyphicon-log-out" >退出登录</span></a></li>
+                {% else %}
+                    <li><a href="/user/register"><span class="glyphicon glyphicon-user"> 注册</span></a></li>
+                    <li><a href="/user/login"><span class="glyphicon glyphicon-log-in"> 登录</span></a></li>
+                {% endif %}
+            </ul>
+            <form class="navbar-form navbar-right" role="search" action="{{ url_for('main.search') }}" method="post">
+                <div class="form-group">
+                    <input class="form-control" type="search"  style="background:rgba(0, 0, 0, 0);" placeholder="搜索文章" name="search" required="required"/>
+                </div>
+                <button type="submit" class="btn btn-default" style="background:rgba(0, 0, 0, 0);"><span class="glyphicon glyphicon-search text-info"></span> </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% block page_content %}
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                 <button type="button" class="close" data-dismiss="alert">&times;</button>
+                 {{ message }}
+            </div>
+         {% endfor %}
+
+
+    {% endblock %}
+</div>
+{% endblock %}
