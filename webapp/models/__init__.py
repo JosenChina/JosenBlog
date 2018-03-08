@@ -6,3 +6,4 @@ from .followModel import Follow
 from .roleModel import Role
 from .userModel import User
 from .categoryModel import Category
+from .blogImgsModel import BlogImgs

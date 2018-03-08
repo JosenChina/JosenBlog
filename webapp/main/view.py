@@ -6,13 +6,13 @@ from flask import render_template, redirect, url_for, flash, request, session, a
 from webapp.decorators import permission_required, admin_required
 from webapp import db
 from ..models.userModel import User
-from ..models.roleModel import Role, Permission
+from ..models.roleModel import Permission
 from ..models.blogModel import Blog
 from ..models.commentModel import Comment
-from ..models.followModel import Follow
 from datetime import datetime
 from random import randint
 import os
+from ._function import delete_blog_imgs
 
 
 @_main.route('/')
@@ -100,9 +100,12 @@ def edit_blog():
 @permission_required(Permission.WRITE_ARTICLES)
 def cancel_blog(bid):
     blog = Blog.query.get_or_404(bid)
-    if not blog.title:
+    if blog.author_id == current_user.id:
+        delete_blog_imgs(blog)
         for comment in blog.comments:
             db.session.delete(comment)
+        for i in blog.imgs:
+            db.session.delete(i)
         db.session.delete(blog)
         db.session.commit()
     session['blog_id'] = None
@@ -208,3 +211,20 @@ def blogs_manage():
     return render_template('main/blogsManage.html',
                            randint=randint, bn=bn, blogs=blogs, endpoint='main.blogs_manage')
 
+
+@_main.route('/delete-blog/<id>')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def delete_blog(id):
+    blog = Blog.query.get_or_404(id)
+    if blog.author_id != current_user.id and not current_user.is_administrator():
+        abort(403)
+    delete_blog_imgs(blog)
+    for comment in blog.comments:
+        db.session.delete(comment)
+    for i in blog.imgs:
+        db.session.delete(i)
+    db.session.delete(blog)
+    db.session.commit()
+    session['blog_id'] = None
+    return redirect(url_for('main.blogs_manage'))

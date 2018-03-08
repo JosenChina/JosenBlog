@@ -94,7 +94,7 @@ class cos_class:
     @staticmethod
     def delete_file(file_name):
         response = client.delete_object(
-            os.environ.get('cos_bucket') + '-' + os.environ.get('cos_app_id'),
+            Bucket=os.environ.get('cos_bucket') + '-' + os.environ.get('cos_app_id'),
             Key=file_name
         )
 

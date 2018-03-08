@@ -5,6 +5,9 @@ from flask import Blueprint
 from flask_login import current_user
 from webapp.upload_file_qcloud_cos import cos_class
 from time import time
+from webapp import db
+from ..models.blogImgsModel import BlogImgs
+
 
 _ueditor = Blueprint('ueditor', __name__)
 
@@ -39,7 +42,10 @@ def upload_image(file_body, blog_id):
     img_name = str(time()).replace('.', '')
     file_name = '/users/%s/blog_img/%s/%s.jpg'\
                 % (current_user.username, blog_id, img_name)
+
     cos_class.upload_file(file_body, file_name)
+    db.session.add(BlogImgs(img_url=file_name, blog_id=blog_id))
+    db.session.commit()
     return {
         "state": "SUCCESS",
         "url":  cos_class.cos_path + file_name,

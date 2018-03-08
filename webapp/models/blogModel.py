@@ -16,6 +16,7 @@ class Blog(db.Model):
     looks = db.Column(db.BigInteger, default=0)
 
     comments = db.relationship('Comment', backref='blog', lazy='dynamic')
+    imgs = db.relationship('BlogImgs', backref='blog', lazy='dynamic')
 
     # 每浏览一次，浏览量自动加一
     def ping(self):
