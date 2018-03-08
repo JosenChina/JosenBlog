@@ -12,7 +12,7 @@
 </div>
 <div class="panel panel-primary">
     <div class="panel-heading">
-        <h3 class="panel-title">{% if current_user == user %}我的资料{% endif %}【用户名：{{ current_user.username }}】</h3>
+        <h3 class="panel-title">{% if current_user == user %}我的资料{% endif %}【用户名：{{ user.username }}】</h3>
     </div>
     <div class="panel-body">
         <div class="col-lg-4">
@@ -128,7 +128,7 @@
 
 </div>
 <div class="blogs">
-    <h3>他的所有文章</h3>
+    <h3>{% if current_user.id == user.id %}我{% elif user.sex == '女' %}她{% else %}他{% endif %}的所有文章</h3>
     <p class="text text-right"><span class="label label-success">共{{ bn }}篇</span> </p>
     {% include 'user/_blogs.html' %}
 </div>

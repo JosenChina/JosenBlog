@@ -1,6 +1,11 @@
 
     <div class="list-group">
         <a href="#" class="list-group-item active">我关注的</a>
+        {% if not followed_pagination.items %}
+            <div class="list-group-item">
+                <p class="text text-info">您还没有关注的作者</p>
+            </div>
+        {% endif %}
         {% for fl in followed_pagination.items %}
             <a href="{{ url_for('user.user_center', id=fl.followed.id) }}">
                 <div class="list-group-item">

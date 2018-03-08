@@ -83,12 +83,12 @@ def login():
 @login_required
 def user_center(id):
     user = User.query.get_or_404(id)
-    page = request.args.get('blogs_page', 1, type=int)
+    page = request.args.get('comments_page', 1, type=int)
     Blogs = Blog.query.filter(Blog.author_id == id)
-    blogs = Blogs.paginate(page, per_page=current_app.config['FLASKY_USER_CENTER_BLOGS_PER_PAGE'], error_out=False)
+    pagination = Blogs.paginate(page, per_page=current_app.config['FLASKY_USER_CENTER_BLOGS_PER_PAGE'], error_out=False)
     bn = Blogs.count()
     return render_template('user/user_center.html', randint=randint,
-                           user=user, bn=bn, blogs=blogs, endpoint='user.user_center')
+                           user=user, bn=bn, pagination=pagination, endpoint='user.user_center')
 
 
 @_user.route('/logout')

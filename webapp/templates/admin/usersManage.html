@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% import '_macros.html' as macros %}
+
+{% block page_content %}
+    {{ super() }}
+    <div class="page-header">
+        <h1>用户管理</h1>
+    </div>
+    <div class="container">
+        <div class="col-lg-6">
+            <form action="{{ url_for('admin.users_manage') }}" method="post">
+                <div class="input-group">
+                    <input type="search" class="form-control" name="username" placeholder="根据用户名搜索用户">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit" name="submit" value="username"><span class="glyphicon glyphicon-search"></span> </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        <div class="col-lg-6">
+            <form action="{{ url_for('admin.users_manage') }}" method="post">
+                <div class="input-group">
+                    <input type="search" class="form-control" name="email" placeholder="根据邮箱搜索用户">
+                    <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit" name="submit" value="email"><span class="glyphicon glyphicon-search"></span> </button>
+                    </span>
+                </div>
+            </form>
+        </div>
+        {% if search_results %}
+            <div class="container">
+                <table class="table">
+                    <caption>搜索结果【共{{ sn }}项】</caption>
+                    <thead>
+                        <tr>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>姓名</th>
+                            <th>注册时间</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in search_results %}
+                            <tr>
+                                <td><a href="{{ url_for('user.user_center', id=user.id) }}">{{ user.username }}</a></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.name }}</td>
+                                <td>{{ moment(user.member_since).fromNow() }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+    </div>
+
+    <br><br>
+    <div class="container">
+        <table class="table table-hover">
+            <caption>所有用户【共{{ un }}位注册用户】</caption>
+            <thead>
+                <tr>
+                    <th>用户名</th>
+                    <th>邮箱</th>
+                    <th>姓名</th>
+                    <th>注册时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users_pagination.items %}
+                    <tr>
+                        <td><a href="{{ url_for('user.user_center', id=user.id) }}">{{ user.username }}</a></td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.name }}</td>
+                        <td>{{ moment(user.member_since).fromNow() }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {{ macros.pagination_widget(users_pagination, 'admin.users_manage') }}
+    </div>
+
+{% endblock %}

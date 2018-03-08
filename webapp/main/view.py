@@ -2,7 +2,7 @@
 # filename: view.py
 from . import _main
 from flask_login import login_required, current_user
-from flask import render_template, redirect, url_for, flash, request, session, abort, current_app
+from flask import render_template, redirect, url_for, flash, request, session, abort, current_app, make_response
 from webapp.decorators import permission_required, admin_required
 from webapp import db
 from ..models.userModel import User
@@ -206,10 +206,10 @@ def delete_comment(id):
 def blogs_manage():
     page = request.args.get('blogs_page', 1, type=int)
     Blogs = Blog.query.filter(Blog.author_id == current_user.id)
-    blogs = Blogs.paginate(page, per_page=current_app.config['FLASKY_BLOGS_MANAGE_PER_PAGE'], error_out=False)
+    pagination = Blogs.paginate(page, per_page=current_app.config['FLASKY_BLOGS_MANAGE_PER_PAGE'], error_out=False)
     bn = Blogs.count()
-    return render_template('main/blogsManage.html',
-                           randint=randint, bn=bn, blogs=blogs, endpoint='main.blogs_manage')
+    return render_template('main/blogsManage.html', pagination=pagination,
+                           randint=randint, bn=bn, endpoint='main.blogs_manage')
 
 
 @_main.route('/delete-blog/<id>')
@@ -228,3 +228,25 @@ def delete_blog(id):
     db.session.commit()
     session['blog_id'] = None
     return redirect(url_for('main.blogs_manage'))
+
+
+@_main.route('/search', methods=['GET', 'POST'])
+def search():
+    if request.method != 'POST':
+        abort(403)
+    mkp = make_response(redirect(url_for('main.search_results', search=request.form['search'])))
+    mkp.set_cookie('search', request.form['search'], max_age=60*60)
+    return mkp
+
+
+@_main.route('/search-results')
+def search_results():
+    page = request.args.get('comments_page', 1, type=int)
+    pagination = Blog.query.filter(
+        Blog.title.like(
+            '%'+(request.args.get('search'+'%') or request.cookies.get('search'))+'%'
+        )).paginate(
+        page, current_app.config['FLASKY_SEARCH_PER_PAGE'], error_out=False
+    )
+    return render_template('main/search.html',
+                           pagination=pagination, endpoint='main.search_results')

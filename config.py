@@ -33,6 +33,9 @@ class DevelopmentConfig(Config):
     FLASKY_HOTTEST_BLOGS = 20
     FLASKY_LAST_BLOGS = 40
     FLASKY_BLOGS_MANAGE_PER_PAGE = 30
+    FLASKY_USERS_PER_PAGE = 100
+    FLASKY_USERS_SEARCH_PER_PAGE = 10
+    FLASKY_SEARCH_PER_PAGE = 20
 
 class TestingConfig(Config):
     TESTING = True
