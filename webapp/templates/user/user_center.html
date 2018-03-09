@@ -66,8 +66,8 @@
                 <span class="label label-primary">关注：{{ user.followed.count() }}</span>
                 <span class="label label-success">被关注：{{ user.followers.count() }}</span>
             </h5>
-            {% if user.name %}<p>{{ user.name }}</p>{% endif %}
-            {% if user.email %}<p><a href="mailto:{{ user.email }}">{{ user.email }}</a></p>{% endif %}
+            {% if user.name %}<p>名字：{{ user.name }}</p>{% endif %}
+            {% if user.email %}<p>邮箱：<a href="mailto:{{ user.email }}">{{ user.email }}</a></p>{% endif %}
             {% if user.sex %}<p>性别： {{ user.sex }}</p>{% endif %}
             {% if user.location %}<p>地址： {{ user.location }}</p>{% endif %}
             {% if user.about_me %}<p>个性签名： {{ user.about_me }}</p>{% endif %}

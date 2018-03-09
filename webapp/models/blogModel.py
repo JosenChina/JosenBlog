@@ -3,7 +3,7 @@
 from webapp import db
 from datetime import datetime
 import bleach
-from webapp.main._function import delete_blog_imgs
+from webapp.upload_file_qcloud_cos import cos_class
 
 
 class Blog(db.Model):
@@ -24,11 +24,17 @@ class Blog(db.Model):
         self.looks += 1
         db.session.add(self)
 
+    def delete_blog_imgs(self):
+        for i in self.imgs:
+            cos_class.delete_file(i.img_url)
+            db.session.delete(i)
+        cos_class.delete_file('/users/%s/blog_img/%s/' % (self.author.username, self.id))
+
     #删除博客
     def delete_blog(self):
         for c in self.comments:
             db.session.delete(c)
-        delete_blog_imgs(self)
+        self.delete_blog_imgs()
         db.session.delete(self)
 
     # 将博客内容自动生成html格式

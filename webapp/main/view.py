@@ -12,7 +12,6 @@ from ..models.commentModel import Comment
 from datetime import datetime
 from random import randint
 import os
-from ._function import delete_blog_imgs
 
 
 @_main.route('/')
@@ -101,7 +100,7 @@ def edit_blog():
 def cancel_blog(bid):
     blog = Blog.query.get_or_404(bid)
     if blog.author_id == current_user.id:
-        delete_blog_imgs(blog)
+        blog.delete_blog_imgs()
         for comment in blog.comments:
             db.session.delete(comment)
         for i in blog.imgs:
@@ -219,7 +218,7 @@ def delete_blog(id):
     blog = Blog.query.get_or_404(id)
     if blog.author_id != current_user.id and not current_user.is_administrator():
         abort(403)
-    delete_blog_imgs(blog)
+    blog.delete_blog_imgs()
     for comment in blog.comments:
         db.session.delete(comment)
     for i in blog.imgs:
