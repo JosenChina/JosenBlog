@@ -205,7 +205,7 @@ class User(UserMixin, db.Model):
         for fed in self.followed:
             db.session.delete(fed)
         for blog in self.blogs:
-            db.session.delete(blog)
+            blog.delete_blog()
         db.session.delete(self)
         db.session.commit()
 

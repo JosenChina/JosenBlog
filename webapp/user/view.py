@@ -44,7 +44,7 @@ def confirmed(token):
 def before_request():
     if current_user.is_authenticated:
         current_user.ping()
-        if not current_user.confirmed and request.endpoint[:5] != 'user.' and request.endpoint != 'static':
+        if not current_user.confirmed and (not request.endpoint or (request.endpoint[:5] != 'user.' and request.endpoint != 'static')):
             return redirect(url_for('user.unconfirmed'))
 
 

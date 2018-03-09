@@ -20,7 +20,7 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     MAIL_SERVER = 'smtpdm.aliyun.com'
-    MAIL_PORT = 25
+    MAIL_PORT = 80
     MAIL_USER_TLS = True
     MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
     MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
