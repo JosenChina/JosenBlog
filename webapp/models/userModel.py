@@ -140,6 +140,27 @@ class User(UserMixin, db.Model):
         db.session.add(self)
         return True
 
+    # 生成“忘记密码”token
+    def forget_passwd_token(self, newpasswd, expiration=3600):
+        s = Serializer(current_app.config['SECRET_KEY'], expiration)
+        return s.dumps({
+            'id': self.id,
+            'newpasswd': newpasswd
+        })
+
+    # “忘记密码”token验证
+    def forget_passwd_confirm(self, token):
+        s = Serializer(current_app.config['SECRET_KEY'])
+        try:
+            data = s.loads(token)
+        except:
+            return False
+        if data.get('id') != self.id:
+            return False
+        self.password = data.get('newpasswd')
+        db.session.add(self)
+        return True
+
     # 修改密码
     def change_password(self, old_password, new_password):
         if not self.verify_password(old_password):
@@ -176,3 +197,13 @@ class User(UserMixin, db.Model):
                 u.role = Role.query.filter_by(default=True).first()
                 db.session.add(u)
         db.session.commit()
+
+    # 删除用户
+    def delete_user(self):
+        for fer in self.followers:
+            db.session.delete(fer)
+        for fed in self.followed:
+            db.session.delete(fed)
+        db.session.delete(self)
+        db.session.commit()
+

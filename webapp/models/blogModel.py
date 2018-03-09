@@ -3,6 +3,7 @@
 from webapp import db
 from datetime import datetime
 import bleach
+from webapp.main._function import delete_blog_imgs
 
 
 class Blog(db.Model):
@@ -22,6 +23,13 @@ class Blog(db.Model):
     def ping(self):
         self.looks += 1
         db.session.add(self)
+
+    #删除博客
+    def delete_blog(self):
+        for c in self.comments:
+            db.session.delete(c)
+        delete_blog_imgs(self)
+        db.session.delete(self)
 
     # 将博客内容自动生成html格式
     @staticmethod

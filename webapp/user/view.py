@@ -1,7 +1,7 @@
 # _*_ coding: utf-8 _*_
 # filename: view.py
 from flask import render_template, redirect, url_for, flash, current_app, request, make_response
-from .form import RegisterForm, LoginForm, ChangeEmailForm, ChangePasswordForm
+from .form import RegisterForm, LoginForm, ChangeEmailForm, ChangePasswordForm, ForgetForm
 from . import _user
 from webapp import db
 from webapp.models.userModel import User
@@ -166,5 +166,27 @@ def change_password():
     resp = make_response(redirect(url_for('.security_center')))
     resp.set_cookie('security_center', 'change-password', max_age=30*24*60*60)
     return resp
+
+
+@_user.route('/forget-passwd', methods=['GET', 'POST'])
+def forget_passwd():
+    form = ForgetForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(email=form.email.data).first()
+        send_email(form.email.data, '邮箱验证【忘记密码】', 'email/forgetPasswd',
+                   token=user.forget_passwd_token(form.passwd1.data), user=user)
+        flash('验证邮件已发送！')
+        return redirect(url_for('user.login'))
+    return render_template('user/forgetPasswd.html', form=form)
+
+
+@_user.route('/forget-passwd-confirm/<id>/<token>')
+def forget_passwd_confirm(id, token):
+    user = User.query.get_or_404(id)
+    if not user.forget_passwd_confirm(token):
+        flash('该邮件已过期！')
+        return redirect(url_for('user.login'))
+    flash('密码已成功修改，请使用新密码登录！')
+    return redirect(url_for('user.login'))
 
 

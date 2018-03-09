@@ -68,3 +68,14 @@ class ChangePasswordForm(FlaskForm):
     def validate_oldPassword(self, field):
         if not current_user.verify_password(field.data):
             raise ValidationError('原密码输入不正确！')
+
+
+class ForgetForm(FlaskForm):
+    email = StringField('账户绑定邮箱邮箱', validators=[DataRequired('此处不能为空！'), Email('请输入正确的邮箱格式')])
+    passwd1 = PasswordField('输入新密码', validators=[DataRequired('此处不能为空')])
+    passwd2 = PasswordField('确认密码', validators=[EqualTo('passwd1', message='两次密码输入不一致！')])
+    submit = SubmitField('提交')
+
+    def validate_email(self, field):
+        if not User.query.filter_by(email=field.data).first():
+            raise ValidationError('该邮箱不存在！请重新注册！')

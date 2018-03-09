@@ -68,3 +68,13 @@ def users_manage():
         sn = search_results.count()
     return render_template('admin/usersManage.html', sn=sn, search_results=search_results,
                            users_pagination=users_pagination, un=un)
+
+
+@_admin.route('/delete-user/<id>')
+@login_required
+@admin_required
+def delete_user(id):
+    user = User.query.get_or_404(id)
+    user.delete_user()
+    flash('已删除该用户！')
+    return redirect(url_for('admin.users_manage'))

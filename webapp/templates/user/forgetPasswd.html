@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block page_content %}
+    {{ super() }}
+    <div class="page-header">
+        <h1>忘记密码</h1>
+    </div>
+    <div class="col-lg-4"></div>
+    <div class="col-lg-4">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">请输入账户邮箱</h3>
+            </div>
+            <div class="panel-body">
+                {{ wtf.quick_form(form) }}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4"></div>
+{% endblock %}
