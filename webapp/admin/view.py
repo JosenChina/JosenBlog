@@ -5,11 +5,14 @@ from flask import render_template, redirect, flash, url_for, request, current_ap
 from flask_login import login_required, current_user
 from . import _admin
 from ._function import clean
-# from ..models.commentModel import Comment
+from ..models.commentModel import Comment
 from ..models.userModel import User
+from ..models.sensitiveWordsModel import SensitiveWord
+from ..models.commentReportsModel import CommentReport
 from webapp import db
 from webapp.decorators import admin_required
 import os
+from datetime import datetime
 
 #
 # @_admin.route('/comment-enable/<int:bid>/<page>/<int:id>')
@@ -78,3 +81,53 @@ def delete_user(id):
     user.delete_user()
     flash('已删除该用户！')
     return redirect(url_for('admin.users_manage'))
+
+
+@_admin.route('/report-manage')
+@login_required
+@admin_required
+def report_manage():
+
+    return render_template('admin/reportManage.html')
+
+
+@_admin.route('/add-sensitiveWord', methods=['GET', 'POST'])
+@login_required
+@admin_required
+def add_sensitive_word():
+    if request.method == 'POST':
+        SW = SensitiveWord.query.filter_by(word=request.form['body']).first() or SensitiveWord(word=request.form['body'])
+        SW.ping()
+        SW.add_one()
+        flash('敏感词已添加！')
+        if request.args.get('id', 0, type=int):
+            CommentReport.query.get_or_404(request.args.get('id', type=int)).delete_one()
+            Comment.query.get_or_404(request.args.get('id', type=int)).disabling()
+    return "<script language=javascript>self.location=document.referrer;</script>"
+
+
+@_admin.route('/delete-report/<int:id>')
+@login_required
+@admin_required
+def delete_report(id):
+    CommentReport.query.get_or_404(id).delete_one()
+    return redirect(url_for('admin.report_manage'))
+
+
+@_admin.route('/sensitiveWord-manage')
+@login_required
+@admin_required
+def sensitive_words_manage():
+    page = request.args.get('page', 1, type=int)
+    SW = SensitiveWord.query
+    pagination = SW.order_by(SensitiveWord.timestamp.desc())\
+        .paginate(page, current_app.config['FLASKY_SENSITIVEWORD_PER_PAGE'], error_out=False)
+    return render_template('admin/sensitiveWordsManage.html', pagination=pagination, SW=SW)
+
+
+@_admin.route('/delete-sensitiveWord/<int:id>')
+@login_required
+@admin_required
+def delete_sensitive_word(id):
+    SensitiveWord.query.get_or_404(id).delete_one()
+    return redirect(url_for('admin.sensitive_words_manage'))

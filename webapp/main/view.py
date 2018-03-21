@@ -9,9 +9,11 @@ from ..models.userModel import User
 from ..models.roleModel import Permission
 from ..models.blogModel import Blog
 from ..models.commentModel import Comment
+from ..models.commentReportsModel import CommentReport
 from datetime import datetime
 from random import randint
 import os
+from _function import check_sensitive
 
 
 @_main.route('/')
@@ -74,8 +76,7 @@ def unfollow(id):
 def edit_blog():
     if not session.get('blog_id'):
         blog = Blog(author=current_user._get_current_object())
-        db.session.add(blog)
-        db.session.commit()
+        blog.upload_blog()
         session['blog_id'] = blog.id
     else:
         blog = Blog.query.filter_by(id=session.get('blog_id')).first()
@@ -86,7 +87,7 @@ def edit_blog():
                                 url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8), _external=True))
         blog.timestamp = datetime.utcnow()
         blog.looks = 0
-        db.session.add(blog)
+        blog.upload_blog()
         session['blog_id'] = None
         session['blog_avatar'] = None
         return redirect(url_for('main.index'))
@@ -141,9 +142,13 @@ def change_blog(id):
 @permission_required(Permission.MODERATE_COMMENTS)
 def comment_blog(id):
     if request.method == 'POST':
-        db.session.add(Comment(body=request.form['body'],
+        try:
+            check_sensitive(request.form['body'])
+            db.session.add(Comment(body=request.form['body'],
                                author=current_user._get_current_object(), blog=Blog.query.get_or_404(id)))
-        flash('已评论！')
+            flash('已评论！')
+        except Exception as e:
+            flash('%s' % e.message)
     return redirect(url_for('main.look_blog', id=id)+'#comments')
 
 
@@ -249,3 +254,16 @@ def search_results():
     )
     return render_template('main/search.html',
                            pagination=pagination, endpoint='main.search_results')
+
+
+@_main.route('/report/<int:id>', methods=['GET', 'POST'])
+def report(id):
+    body = request.args.get('body')
+    if request.method == 'POST':
+        cr = CommentReport.query.get(id) or CommentReport(id=id, instruction=request.form.get('body'))
+        cr.ping()
+        cr.add_one()
+        flash('已成功匿名举报，后台管理员将会在24小时内处理！')
+        return redirect(url_for('main.look_blog', id=Comment.query.get_or_404(id).blog_id))
+    return render_template('main/report.html', id=id, body=body)
+

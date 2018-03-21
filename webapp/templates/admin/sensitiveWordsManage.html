@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block page_content %}
+    {{ super() }}
+    <div class="page-header">
+        <h1>敏感词管理</h1>
+    </div>
+
+    <div class="panel panel-warning">
+        <div class="panel-heading">
+            <h3 class="panel-title">添加敏感词</h3>
+        </div>
+        <div class="panel-body">
+            <form action="{{ url_for('admin.add_sensitive_word') }}" method="post">
+                <span>请输入要添加的敏感词：</span>
+                <input type="text" name="body" class="form-control" placeholder="请不要超过128个字符！" maxlength="128" required><br>
+                <button type="submit" class="btn btn-sm btn-info">添加</button>
+            </form>
+        </div>
+    </div>
+
+
+    <table class="table table-hover">
+        <caption>共计： {{ SW.count() }} 个</caption>
+        <thead>
+            <tr>
+                <th>编号</th>
+                <th>添加时间</th>
+                <th>敏感词</th>
+                <th>删除</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sw in pagination.items %}
+                <tr>
+                    <td>{{ sw.id }}</td>
+                    <td>{{ moment(sw.timestamp).fromNow() }}</td>
+                    <td>{{ sw.word }}</td>
+                    <td><a href="{{ url_for('admin.delete_sensitive_word', id=sw.id) }}" class="text-danger">删除</a> </td>
+                </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+    {% include 'admin/_SensitiveWords_Pagination.html' %}
+{% endblock %}

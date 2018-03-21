@@ -15,6 +15,9 @@
                     {% endif %}
                     {% if moderate or not comment.disabled %}
                         {{ comment.body }}
+                        <p class="text-right">
+                            <a class="text-danger" href="{{ url_for('main.report', id=comment.id, body=comment.body) }}" title="该评论包含敏感词！">匿名举报</a>
+                        </p>
                     {% endif %}
                 </div>
                 {% if moderate and blog %}

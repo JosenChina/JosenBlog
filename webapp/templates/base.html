@@ -41,6 +41,8 @@
                 {% if current_user.can(Permission.ADMINISTER) %}
                     <li><a href="{{ url_for('admin.edit_bulletin') }}" >公告栏管理</a></li>
                     <li><a href="{{ url_for('admin.users_manage') }}">用户管理</a> </li>
+                    <li><a href="{{ url_for('admin.sensitive_words_manage') }}">敏感词管理</a> </li>
+                    <li><a href="{{ url_for('admin.report_manage') }}">用户举报&nbsp;<span class="badge pull-right">{{ CommentReport.query.count() }}</span></a> </li>
                 {% endif %}
             </ul>
 

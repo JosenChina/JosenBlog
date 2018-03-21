@@ -36,6 +36,7 @@ class DevelopmentConfig(Config):
     FLASKY_USERS_PER_PAGE = 100
     FLASKY_USERS_SEARCH_PER_PAGE = 10
     FLASKY_SEARCH_PER_PAGE = 20
+    FLASKY_SENSITIVEWORD_PER_PAGE = 50
 
 class TestingConfig(Config):
     TESTING = True

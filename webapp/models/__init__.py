@@ -7,3 +7,5 @@ from .roleModel import Role
 from .userModel import User
 from .categoryModel import Category
 from .blogImgsModel import BlogImgs
+from .sensitiveWordsModel import SensitiveWord
+from .commentReportsModel import CommentReport

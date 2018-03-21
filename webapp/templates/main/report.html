@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% import 'bootstrap/wtf.html' as wtf %}
+{% block page_content %}
+    {{ super() }}
+    <div class="page-header">
+        <h1>匿名举报</h1>
+    </div>
+    <div>
+        <h2>评论内容：</h2>
+        <p>{{ body }}</p>
+    </div>
+    <form action="{{ url_for('main.report', id=id) }}" method="post">
+        <label>举报说明</label>
+        <textarea rows="5" style="width: 100%;" name="body" maxlength="100"
+                  placeholder="详细的说明有助于后台管理员对该评论进行管理！【例如（长度不要超出100）：“包含敏感词汇 ‘ ××× ’ ”】" required="required"></textarea><br><br>
+        <button class="btn btn-warning btn-sm" type="submit">确认举报</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block page_content %}
+    {{ super() }}
+    <h1>用户举报管理</h1>
+    <table class="table table-hover">
+        <caption>共计：{{ CommentReport.query.count() }}&nbsp;项</caption>
+        <thead>
+            <tr>
+                <th>时间</th>
+                <th>评论内容</th>
+                <th>举报说明</th>
+                <th>敏感词</th>
+                <th>添加敏感词</th>
+                <th>删除</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for CR in CommentReport.query.order_by(CommentReport.timestamp.desc()).all() %}
+                <tr>
+                    <td>{{ moment(CR.timestamp).fromNow() }}</td>
+                    <td>{{ CR.comment.body }}</td>
+                    <td>{{ CR.instruction }}</td>
+                    <form action="{{ url_for('admin.add_sensitive_word', id=CR.id) }}" method="post">
+                        <td><input type="text" class="form-control" placeholder="请输入敏感词。。。" required name="body"></td>
+                        <td><button class="btn btn-sm btn-info" type="submit">添加</button> </td>
+                    </form>
+                    <td><a href="{{ url_for('admin.delete_report', id=CR.id) }}" class="text-danger">删除</a> </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

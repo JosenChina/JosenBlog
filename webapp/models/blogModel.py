@@ -19,6 +19,13 @@ class Blog(db.Model):
     comments = db.relationship('Comment', backref='blog', lazy='dynamic')
     imgs = db.relationship('BlogImgs', backref='blog', lazy='dynamic')
 
+    def __repr__(self):
+        return '<blog %r>' % self.title
+    # 博客发表
+    def upload_blog(self):
+        db.session.add(self)
+        db.session.commit()
+
     # 每浏览一次，浏览量自动加一
     def ping(self):
         self.looks += 1
