@@ -232,7 +232,8 @@ def delete_blog(id):
     db.session.delete(blog)
     db.session.commit()
     session['blog_id'] = None
-    return "<script language=javascript>self.location=document.referrer;</script>"
+    flash('博客已删除！')
+    return redirect(url_for('main.index'))
 
 
 @_main.route('/search', methods=['GET', 'POST'])
@@ -305,12 +306,13 @@ def cate_remove_blog(cid, bid):
     cate.remove_blog(blog)
     return redirect(url_for('main.cate_blogs', id=cid))
 
+
 @_main.route('/category-manage', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.WRITE_ARTICLES)
 def category_manage():
     if request.method == 'POST':
-        category = Category.query.filter_by(name=request.form['body']).first() \
+        category = Category.query.filter_by(name=request.form['body'], author_id=current_user.id).first() \
                    or Category(name=request.form['body'], author_id=current_user.id)
         category.add_one()
     Categorys = Category.query.filter(Category.author_id == current_user.id)
