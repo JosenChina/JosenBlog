@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block page_content %}
+    {{ super() }}
+    <div class="page-header">
+        <h1>分类<i class="text-success"> {{ category.name }} </i>下的所有博客{% if user != current_user %}【作者： <strong class="text-primary">{{ user.username }}</strong> 】{% endif %}</h1>
+    </div>
+
+    {% if category.author_id == current_user.id %}
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">添加博客</h3>
+            </div>
+            <div class="panel-body">
+                <span>请输入您发表过博客的标题：</span>
+                <form action="{{ url_for('main.cate_blogs', id=category.id) }}" method="post">
+                    <input type="text" class="form-control" placeholder="请确保输入的博客标题是您本人发表过且还未删除的！" name="body" required><br>
+                    <button class="btn btn-primary btn-sm">查找</button>
+                </form><br>
+                {% if search %}
+                <table class="table table-hover">
+                    <caption>搜索结果</caption>
+                    <thead>
+                        <tr>
+                            <th>博客标题</th>
+                            <th>发表时间</th>
+                            <th>评论</th>
+                            <th>浏览量</th>
+                            <th>添加/移除 到<i> {{ category.name }} </i>目录</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for blog in search %}
+                            <tr>
+                                <td><a href="{{ url_for('main.look_blog', id=blog.id) }}"> {{ (blog.title or '无标题').rsplit('+-+', 1)[0] }}</a></td>
+                                <td>{{ moment(blog.timestamp).fromNow() }}</td>
+                                <td>{{ blog.comments.count() }}</td>
+                                <td>{{ blog.looks }}</td>
+                                <td>
+                                    {% if blog in category.blogs %}
+                                        <a class="text-warning" href="{{ url_for('main.cate_remove_blog', cid=category.id, bid=blog.id) }}">移除</a>
+                                    {% else %}
+                                        <a class="text-success" href="{{ url_for('main.cate_add_blog', cid=category.id, bid=blog.id) }}">添加</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <ul class="posts">
+    {% for b in category.blogs.all() %}
+        <li class="post">
+            <div class="post-thumbnail">
+                <a href="{{ url_for('main.look_blog', id=b.id) }}">
+                    <img class="img-rounded profile-thumbnail" width="100px"
+                         src="{{ (b.title or '+-+%s' % url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8))).rsplit('+-+', 1)[1] }}">
+                </a>
+                </div>
+                <div class="post-content">
+                    <div class="post-date">{{ moment(b.timestamp).fromNow() }}</div>
+                    <div class="post-author">
+                        <a href="{{ url_for('user.user_center', id=b.author_id) }}">
+                            &nbsp;&nbsp;{{ b.author.name }}
+                        </a>
+                    </div>
+                    <div class="post-body">
+                        {% if b.title %}
+                            {{ (b.title or '无标题').rsplit('+-+', 1)[0] }}
+                        {% else %}
+                            无标题
+                        {% endif %}
+                    </div>
+
+                    <div class="post-footer">
+                        <a href="{{ url_for('main.look_blog', id=b.id) }}"  class="label label-primary">
+                            <span>点击查看</span>
+                        </a>&nbsp;
+                        <a class="label label-warning"><span>{{ b.comments.count() }}评论</span> </a>&nbsp;
+                        {% if current_user == b.author %}
+                            <a class="label label-primary" href="{{ url_for('main.edit_blog', id=b.id) }}">
+                                <span>更改博客</span>
+                            </a>&nbsp
+                            <a class="label label-danger" href="{{ url_for('main.cate_remove_blog', cid=category.id, bid=b.id) }}"><span>移出分类</span></a>
+                        {% elif current_user.is_administrator() %}
+                        <a class="label label-danger" href="{{ url_for('main.edit_blog', id=b.id) }}">
+                            <span>更改博客[管理员]</span>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

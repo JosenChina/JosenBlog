@@ -10,6 +10,7 @@ from ..models.roleModel import Permission
 from ..models.blogModel import Blog
 from ..models.commentModel import Comment
 from ..models.commentReportsModel import CommentReport
+from ..models.categoryModel import Category
 from datetime import datetime
 from random import randint
 import os
@@ -231,7 +232,7 @@ def delete_blog(id):
     db.session.delete(blog)
     db.session.commit()
     session['blog_id'] = None
-    return redirect(url_for('main.blogs_manage'))
+    return "<script language=javascript>self.location=document.referrer;</script>"
 
 
 @_main.route('/search', methods=['GET', 'POST'])
@@ -257,6 +258,7 @@ def search_results():
 
 
 @_main.route('/report/<int:id>', methods=['GET', 'POST'])
+@login_required
 def report(id):
     body = request.args.get('body')
     if request.method == 'POST':
@@ -266,4 +268,60 @@ def report(id):
         flash('已成功匿名举报，后台管理员将会在24小时内处理！')
         return redirect(url_for('main.look_blog', id=Comment.query.get_or_404(id).blog_id))
     return render_template('main/report.html', id=id, body=body)
+
+
+@_main.route('/cate-blogs/<int:id>', methods=['GET', 'POST'])
+@login_required
+def cate_blogs(id):
+    category = Category.query.get_or_404(id)
+    user = User.query.get_or_404(category.author_id)
+    search = None
+    if request.method == 'POST':
+        search = Blog.query.filter(Blog.author_id == current_user.id)\
+            .filter(Blog.title.ilike('%'+request.form['body']+'%')).all()
+    return render_template('main/cateBlogs.html', category=category, user=user, search=search)
+
+
+@_main.route('/cate-add-blog/<int:cid>/<int:bid>')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def cate_add_blog(cid, bid):
+    cate = Category.query.get_or_404(cid)
+    blog = Blog.query.get_or_404(bid)
+    if cate.author_id != current_user.id or blog.author_id != current_user.id:
+        abort(403)
+    cate.add_blog(blog)
+    return redirect(url_for('main.cate_blogs', id=cid))
+
+
+@_main.route('/cate-remove-blog/<int:cid>/<int:bid>')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def cate_remove_blog(cid, bid):
+    cate = Category.query.get_or_404(cid)
+    blog = Blog.query.get_or_404(bid)
+    if cate.author_id != current_user.id or blog.author_id != current_user.id:
+        abort(403)
+    cate.remove_blog(blog)
+    return redirect(url_for('main.cate_blogs', id=cid))
+
+@_main.route('/category-manage', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def category_manage():
+    if request.method == 'POST':
+        category = Category.query.filter_by(name=request.form['body']).first() \
+                   or Category(name=request.form['body'], author_id=current_user.id)
+        category.add_one()
+    Categorys = Category.query.filter(Category.author_id == current_user.id)
+    return render_template('main/cateManage.html', Categorys=Categorys)
+
+
+@_main.route('/delete-category/<int:id>')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def delete_category(id):
+    Category.query.get_or_404(id).delete_one()
+    return "<script language=javascript>self.location=document.referrer;</script>"
+
 

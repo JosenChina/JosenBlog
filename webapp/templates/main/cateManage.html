@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block page_content %}
+    {{ super() }}
+    <h1>分类管理</h1>
+    <div class="panel panel-success">
+        <div class="panel-heading">
+            <h3 class="panel-title">添加分类</h3>
+        </div>
+        <div class="panel-body">
+            <form action="{{ url_for('main.category_manage') }}" method="post">
+                <span>分类名称：</span>
+                <input type="text" name="body" class="form-control" maxlength="128" placeholder="长度不要超过128个字符" required><br>
+                <button type="submit" class="btn btn-primary">添加</button>
+            </form>
+        </div>
+    </div>
+    <table class="table table-hover">
+        <caption>共： {{ Categorys.count() }} 项</caption>
+        <thead>
+            <tr>
+                <th>名称</th>
+                <th>添加时间</th>
+                <th>文章数量</th>
+                <th>删除</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cate in Categorys.all() %}
+                <tr>
+                    <td><a class="text-warning" href="{{ url_for('main.cate_blogs', id=cate.id) }}"> <strong>{{ cate.name }}</strong></a></td>
+                    <td>{{ moment(cate.timestamp).fromNow() }}</td>
+                    <td>{{ cate.blogs.count() }}</td>
+                    <td><a class="text-danger" href="{{ url_for('main.delete_category', id=cate.id) }}">删除</a> </td>
+                </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

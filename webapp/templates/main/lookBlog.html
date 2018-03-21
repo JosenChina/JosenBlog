@@ -6,9 +6,20 @@
 	    <div class="row clearfix">
 		    <div class="col-md-12 column">
 			    <div class="jumbotron">
-				    <h1>
-					    {{ (blog.title or '[无标题]').rsplit('+-+',1)[0] }}
-				    </h1>
+                    <ul class="breadcrumb text-right">
+				        <h1 class="text-left">
+					        {{ (blog.title or '[无标题]').rsplit('+-+',1)[0] }}
+				        </h1>
+                        <li>
+                            <strong class="active">博客分类：</strong>
+                        </li>
+                        {% for cate in blog.categorys %}
+                            <li>
+                                <a href="{{ url_for('main.cate_blogs', id=cate.id) }}">{{ cate.name }}</a>
+                            </li>
+                        {% endfor %}
+
+                    </ul>
                     <h5>
                         <span class="label label-success">浏览量：{{ blog.looks }}</span>&nbsp;&nbsp;
                         <span class="label label-warning">评论：{{ blog.comments.count() }}</span>&nbsp;&nbsp;
