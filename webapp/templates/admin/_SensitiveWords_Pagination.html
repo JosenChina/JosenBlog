@@ -13,7 +13,7 @@
                 </li>
                 {% else %}
                 <li>
-                    <a href="{{ url_for('admin.sensitive_words_manage', page=p, **kwargs) }}">{{ p }}</a>
+                    <a href="{{ url_for('admin.sensitive_words_manage', page=p) }}">{{ p }}</a>
                 </li>
                 {% endif %}
             {% else %}
@@ -21,7 +21,7 @@
             {% endif %}
         {% endfor %}
         <li{% if not pagination.has_next %} class="disabled"{% endif %}>
-            <a href="{% if pagination.has_next %}{{ url_for('admin.sensitive_words_manage', page=pagination.page + 1, **kwargs) }}{% else %}#{% endif %}">
+            <a href="{% if pagination.has_next %}{{ url_for('admin.sensitive_words_manage', page=pagination.page + 1) }}{% else %}#{% endif %}">
                 &raquo;
             </a>
         </li>

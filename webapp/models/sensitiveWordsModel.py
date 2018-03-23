@@ -34,6 +34,20 @@ class SensitiveWord(db.Model):
     def add_sensitive_words():
         with open(basedir+'/webapp/static/sensitiveWords.txt', 'r') as f:
             for word in f:
-                SW = SensitiveWord.query.filter_by(word=word[:-1]).first() or SensitiveWord(word=word[:-1])
+                # 当sensitiveWords.txt文件是Windows下创建时
+                # SW = SensitiveWord.query.filter_by(word=unicode(word[:-2])).first() \
+                #      or SensitiveWord(word=unicode(word[:-2]))
+
+                # 当sensitiveWords.txt文件不是Windows下创建时
+                SW = SensitiveWord.query.filter_by(word=unicode(word[:-1])).first() \
+                     or SensitiveWord(word=unicode(word[:-1]))
                 db.session.add(SW)
             db.session.commit()
+
+    # 删除所有敏感词
+    #
+    @staticmethod
+    def delete_all_words():
+        for word in SensitiveWord.query.all():
+            db.session.delete(word)
+        db.session.commit()
