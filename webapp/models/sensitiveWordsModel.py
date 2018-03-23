@@ -2,6 +2,7 @@
 # filename: sensitiveWordsModel
 from webapp import db
 from datetime import datetime
+from config import basedir
 
 
 class SensitiveWord(db.Model):
@@ -26,3 +27,13 @@ class SensitiveWord(db.Model):
     def delete_one(self):
         db.session.delete(self)
         db.session.commit()
+
+    # 添加敏感词
+    #
+    @staticmethod
+    def add_sensitive_words():
+        with open(basedir+'/webapp/static/sensitiveWords.txt', 'r') as f:
+            for word in f:
+                SW = SensitiveWord.query.filter_by(word=word[:-1]).first() or SensitiveWord(word=word[:-1])
+                db.session.add(SW)
+            db.session.commit()
