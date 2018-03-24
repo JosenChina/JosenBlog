@@ -209,3 +209,8 @@ class User(UserMixin, db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    # 添加用户（用于注册）
+    def add_self(self):
+        db.session.add(self)
+        db.session.commit()
+

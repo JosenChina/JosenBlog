@@ -43,6 +43,7 @@ class Blog(db.Model):
             db.session.delete(c)
         self.delete_blog_imgs()
         db.session.delete(self)
+        db.session.commit()
 
     # 将博客内容自动生成html格式
     @staticmethod

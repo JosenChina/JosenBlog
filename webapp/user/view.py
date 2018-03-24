@@ -3,7 +3,6 @@
 from flask import render_template, redirect, url_for, flash, current_app, request, make_response
 from .form import RegisterForm, LoginForm, ChangeEmailForm, ChangePasswordForm, ForgetForm
 from . import _user
-from webapp import db
 from webapp.models.userModel import User
 from webapp.models.roleModel import Role
 from webapp.models.blogModel import Blog
@@ -20,7 +19,7 @@ def register():
         user = User(username=form.username.data, email=form.email.data, \
                     password=form.password1.data, name=form.name.data, sex=form.sex.data)
         user.role = Role.query.filter_by(default=True).first()
-        db.session.add(user)
+        user.add_self()
         send_email(form.email.data, 'Josen博客网【邮箱验证】', 'email/email_confirmed',\
                    user=user, token=user.generate_confirmation_token())
         flash('验证邮件已发送至您的邮箱，请在验证邮件中获取激活链接')
@@ -106,7 +105,7 @@ def change_avatar():
         if ChangeAvatar.if_file_name(request.files['avatar'].filename):
             ChangeAvatar.change_avatar(request.files['avatar'], current_user.username)
             current_user.avatar_hash = ChangeAvatar.get_avatar_hash(current_user.username)
-            db.session.add(current_user)
+            current_user.add_self()
             flash('更新头像成功！')
             return redirect(url_for('.user_center', id=current_user.id))
         flash('请上传正确的图片格式！')
@@ -121,7 +120,7 @@ def change_info():
         current_user.sex = request.form['sex'] or current_user.sex
         current_user.location = request.form['location'] or current_user.location
         current_user.about_me = request.form['about_me'] or current_user.about_me
-        db.session.add(current_user)
+        current_user.add_self()
     return redirect(url_for('.user_center', id=current_user.id))
 
 

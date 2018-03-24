@@ -4,7 +4,6 @@ from . import _main
 from flask_login import login_required, current_user
 from flask import render_template, redirect, url_for, flash, request, session, abort, current_app, make_response
 from webapp.decorators import permission_required, admin_required
-from webapp import db
 from ..models.userModel import User
 from ..models.roleModel import Permission
 from ..models.blogModel import Blog
@@ -102,13 +101,7 @@ def edit_blog():
 def cancel_blog(bid):
     blog = Blog.query.get_or_404(bid)
     if blog.author_id == current_user.id:
-        blog.delete_blog_imgs()
-        for comment in blog.comments:
-            db.session.delete(comment)
-        for i in blog.imgs:
-            db.session.delete(i)
-        db.session.delete(blog)
-        db.session.commit()
+        blog.delete_blog()
     session['blog_id'] = None
     return redirect(url_for('main.index'))
 
@@ -145,8 +138,8 @@ def comment_blog(id):
     if request.method == 'POST':
         try:
             check_sensitive(request.form['body'])
-            db.session.add(Comment(body=request.form['body'],
-                               author=current_user._get_current_object(), blog=Blog.query.get_or_404(id)))
+            comment = Comment(body=request.form['body'], author=current_user._get_current_object(), blog=Blog.query.get_or_404(id))
+            comment.add_one()
             flash('已评论！')
         except Exception as e:
             flash('%s' % e.message)
@@ -162,8 +155,7 @@ def comment_enable(bid, id):
     if blog.author != current_user and not current_user.is_administrator():
         abort(403)
     comment = Comment.query.get_or_404(id)
-    comment.disabled = False
-    db.session.add(comment)
+    comment.enable_comment()
     flash('已启用！')
     return redirect(url_for('main.look_blog', id=bid, page=page))
 
@@ -177,8 +169,7 @@ def comment_disable(bid, id):
     if blog.author != current_user and not current_user.is_administrator():
         abort(403)
     comment = Comment.query.get_or_404(id)
-    comment.disabled = True
-    db.session.add(comment)
+    comment.disable_comment()
     flash('已禁用！')
     return redirect(url_for('main.look_blog', id=bid, page=page))
 
@@ -200,7 +191,7 @@ def comment_disable(bid, id):
 def delete_comment(id):
     comment = Comment.query.get_or_404(id)
     if current_user == comment.author:
-        db.session.delete(comment)
+        comment.delete_one()
         flash('已删除！')
     return '<script>self.location=document.referrer</script>'
 
@@ -224,13 +215,7 @@ def delete_blog(id):
     blog = Blog.query.get_or_404(id)
     if blog.author_id != current_user.id and not current_user.is_administrator():
         abort(403)
-    blog.delete_blog_imgs()
-    for comment in blog.comments:
-        db.session.delete(comment)
-    for i in blog.imgs:
-        db.session.delete(i)
-    db.session.delete(blog)
-    db.session.commit()
+    blog.delete_blog()
     session['blog_id'] = None
     flash('博客已删除！')
     return redirect(url_for('main.index'))

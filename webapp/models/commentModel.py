@@ -23,3 +23,31 @@ class Comment(db.Model):
         self.disabled = True
         db.session.add(self)
         db.session.commit()
+
+    # 评论（添加一行）
+    def add_one(self):
+        db.session.add(self)
+        db.session.commit()
+
+    # 删除一条评论
+    def delete_one(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    # 删除一条评论不提交（提升删除多条的运行速度）
+    def delete_one_from_manay(self):
+        db.session.delete(self)
+
+    # 开启评论
+    def enable_comment(self):
+        self.disabled = False
+        db.session.add(self)
+        db.session.commit()
+
+    # 禁用评论
+    def disable_comment(self):
+        self.disabled = True
+        db.session.add(self)
+        db.session.commit()
+
+    #

@@ -9,7 +9,6 @@ from ..models.commentModel import Comment
 from ..models.userModel import User
 from ..models.sensitiveWordsModel import SensitiveWord
 from ..models.commentReportsModel import CommentReport
-from webapp import db
 from webapp.decorators import admin_required
 import os
 from datetime import datetime
