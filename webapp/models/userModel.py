@@ -206,6 +206,8 @@ class User(UserMixin, db.Model):
             db.session.delete(fed)
         for blog in self.blogs:
             blog.delete_blog()
+        for category in self.categorys:
+            db.session.delete(category)
         db.session.delete(self)
         db.session.commit()
 
