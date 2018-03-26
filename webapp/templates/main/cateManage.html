@@ -21,7 +21,8 @@
                 <th>名称</th>
                 <th>添加时间</th>
                 <th>文章数量</th>
-                <th>删除</th>
+                <th>写博客</th>
+                <th>删除分类</th>
             </tr>
         </thead>
         <tbody>
@@ -30,7 +31,8 @@
                     <td><a class="text-warning" href="{{ url_for('main.cate_blogs', id=cate.id) }}"> <strong>{{ cate.name }}</strong></a></td>
                     <td>{{ moment(cate.timestamp).fromNow() }}</td>
                     <td>{{ cate.blogs.count() }}</td>
-                    <td><a class="text-danger" href="{{ url_for('main.delete_category', id=cate.id) }}">删除</a> </td>
+                    <td><a href="{{ url_for('main.write_blog_to_cate', id=cate.id) }}">写博客</a> </td>
+                    <td><a class="text-danger" href="{{ url_for('main.delete_category', id=cate.id) }}" onclick="return confirm('确定要删除该分类吗？')">删除</a> </td>
                 </tr>
 
             {% endfor %}

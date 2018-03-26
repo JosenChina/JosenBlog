@@ -76,6 +76,8 @@ def unfollow(id):
 def edit_blog():
     if not session.get('blog_id'):
         blog = Blog(author=current_user._get_current_object())
+        blog.title = u'暂无标题' + '+-+' + (session.get('blog_avatar') or
+                                url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8), _external=True))
         blog.upload_blog()
         session['blog_id'] = blog.id
     else:
@@ -312,3 +314,17 @@ def delete_category(id):
     return "<script language=javascript>self.location=document.referrer;</script>"
 
 
+@_main.route('/write-blog-to-cate/<int:id>')
+@login_required
+@permission_required(Permission.WRITE_ARTICLES)
+def write_blog_to_cate(id):
+    cate = Category.query.get_or_404(id)
+    if not session.get('blog_id'):
+        blog = Blog(author=current_user._get_current_object())
+        blog.title = u'暂无标题' + '+-+' + (session.get('blog_avatar') or
+                                    url_for('static', filename='blog_avatar/%s.jpg' % randint(1, 8), _external=True))
+    else:
+        blog = Blog.query.get_or_404(session.get('blog_id'))
+    cate.add_blog(blog)
+    session['blog_id'] = blog.id
+    return redirect(url_for('main.edit_blog'))
