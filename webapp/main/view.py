@@ -267,7 +267,7 @@ def cate_blogs(id):
     if request.method == 'POST':
         search = Blog.query.filter(Blog.author_id == current_user.id)\
             .filter(Blog.title.ilike('%'+request.form['body']+'%')).all()
-    return render_template('main/cateBlogs.html', category=category, user=user, search=search)
+    return render_template('main/cateBlogs.html', category=category, user=user, search=search, Blog=Blog)
 
 
 @_main.route('/cate-add-blog/<int:cid>/<int:bid>')

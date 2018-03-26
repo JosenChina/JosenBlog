@@ -53,7 +53,7 @@
     {% endif %}
 
     <ul class="posts">
-    {% for b in category.blogs.all() %}
+    {% for b in category.blogs.order_by(Blog.timestamp.desc()).all() %}
         <li class="post">
             <div class="post-thumbnail">
                 <a href="{{ url_for('main.look_blog', id=b.id) }}">
